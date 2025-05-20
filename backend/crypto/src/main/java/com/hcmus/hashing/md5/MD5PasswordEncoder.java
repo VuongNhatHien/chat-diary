@@ -1,4 +1,4 @@
-package com.hcmus.hashing;
+package com.hcmus.hashing.md5;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
