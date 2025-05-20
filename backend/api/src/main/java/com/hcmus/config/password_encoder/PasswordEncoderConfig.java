@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.hcmus.hashing.MD5PasswordEncoder;
+
 @Configuration
 public class PasswordEncoderConfig {
 	@Bean
