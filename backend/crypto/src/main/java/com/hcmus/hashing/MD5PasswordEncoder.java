@@ -1,8 +1,6 @@
-package com.hcmus.config.password_encoder;
+package com.hcmus.hashing;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.hcmus.hashing.MD5;
 
 public class MD5PasswordEncoder implements PasswordEncoder {
 	@Override
