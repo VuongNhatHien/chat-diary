@@ -1,10 +1,6 @@
 package com.hcmus.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,5 +8,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class ChatResponse {
-	private String text;
+
+    private String text;
 }

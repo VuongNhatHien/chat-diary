@@ -1,9 +1,8 @@
 package com.hcmus.controller;
 
+import com.hcmus.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.hcmus.dto.response.ApiResponse;
 
 @RestController
 public class TestController {

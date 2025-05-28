@@ -1,5 +1,8 @@
 package com.hcmus.service;
 
+import com.hcmus.config.property.GoogleProperties;
+import com.hcmus.dto.response.GoogleOAuthTokenResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -8,11 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import com.hcmus.config.property.GoogleProperties;
-import com.hcmus.dto.response.GoogleOAuthTokenResponse;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -35,12 +33,12 @@ public class GoogleOAuthService {
         params.add("client_id", googleProperties.getClientId());
         params.add("client_secret", googleProperties.getClientSecret());
         params.add("scope",
-            "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email");
+                "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email");
         params.add("scope", "openid");
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params,
-            httpHeaders);
+                httpHeaders);
 
         String url = "https://oauth2.googleapis.com/token";
 

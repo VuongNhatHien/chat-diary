@@ -4,7 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record OpenAICreateResponseRequest(
-	String model,
-	Object input
+        String model,
+        Object input
 ) {
+
 }

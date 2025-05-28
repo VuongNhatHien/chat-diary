@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class OpenAIMessage {
-	OpenAIChatRole role;
-	String content;
+
+    OpenAIChatRole role;
+    String content;
 }

@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class OpenAIChatRequest {
-	@NotBlank
-	private String message;
+
+    @NotBlank
+    private String message;
 }

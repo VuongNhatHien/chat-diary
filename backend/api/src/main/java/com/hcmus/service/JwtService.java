@@ -1,20 +1,5 @@
 package com.hcmus.service;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.util.Collections;
-
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.stereotype.Service;
-
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -24,8 +9,15 @@ import com.hcmus.config.property.JwtProperties;
 import com.hcmus.model.Role;
 import com.hcmus.model.User;
 import com.hcmus.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -46,13 +38,13 @@ public class JwtService {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuedAt(now)
-            .expiresAt(now.plusMillis(jwtProperties.getExpiration()))
-            .subject(username)
-            .build();
+                .issuedAt(now)
+                .expiresAt(now.plusMillis(jwtProperties.getExpiration()))
+                .subject(username)
+                .build();
 
         var encoderParameters = JwtEncoderParameters.from(
-            JwsHeader.with(SignatureAlgorithm.RS256).build(), claims);
+                JwsHeader.with(SignatureAlgorithm.RS256).build(), claims);
 
         return encoder.encode(encoderParameters).getTokenValue();
     }
@@ -69,9 +61,9 @@ public class JwtService {
 
     public String decodeGoogleToken(String token) throws GeneralSecurityException, IOException {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
-            new JacksonFactory())
-            .setAudience(Collections.singletonList(googleProperties.getClientId()))
-            .build();
+                new JacksonFactory())
+                .setAudience(Collections.singletonList(googleProperties.getClientId()))
+                .build();
 
         GoogleIdToken idToken = verifier.verify(token);
 

@@ -1,13 +1,5 @@
 package com.hcmus.service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.hcmus.constant.GeneralConstant;
 import com.hcmus.dto.request.ChatRequest;
 import com.hcmus.dto.request.OpenAIChatRequest;
@@ -21,111 +13,119 @@ import com.hcmus.model.ChatSummary;
 import com.hcmus.repository.ChatMessageRepository;
 import com.hcmus.repository.ChatRoomRepository;
 import com.hcmus.repository.ChatSummaryRepository;
-
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
-	private static final String SUMMARY_PROMPT =
-		"""
-			Dưới đây là những cuộc trò chuyện giữa tôi và 1 người bạn trong ngày hôm nay, hãy viết nhật ký cho tôi về cuộc trò chuyện trong ngày hôm nay. Chỉ viết và không giải thích gì thêm:
-			""";
-	private final ChatRoomRepository chatRoomRepository;
-	private final OpenAIService openAIService;
-	private final ChatMessageRepository chatMessageRepository;
-	private final ChatSummaryRepository chatSummaryRepository;
 
-	@Transactional
-	public ChatRoom createChatRoom() {
-		return chatRoomRepository.save(ChatRoom.builder().name("New conversation").build());
-	}
+    private static final String SUMMARY_PROMPT =
+        """
+            Dưới đây là những cuộc trò chuyện giữa tôi và 1 người bạn trong ngày hôm nay, hãy viết nhật ký cho tôi về cuộc trò chuyện trong ngày hôm nay. Chỉ viết và không giải thích gì thêm:
+            """;
+    private final ChatRoomRepository chatRoomRepository;
+    private final OpenAIService openAIService;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatSummaryRepository chatSummaryRepository;
 
-	private List<OpenAIMessage> findOpenAIMessagesByRoomId(int roomId) {
-		List<ChatMessage> chatMessages = chatMessageRepository.findByRoomId(roomId);
-		return chatMessages.stream().map(chatMessage ->
-			OpenAIMessage.builder()
-				.role(chatMessage.belongToChatBot() ? OpenAIChatRole.ASSISTANT : OpenAIChatRole.USER)
-				.content(chatMessage.getText())
-				.build()
-		).toList();
-	}
+    @Transactional
+    public ChatRoom createChatRoom() {
+        return chatRoomRepository.save(ChatRoom.builder().name("New conversation").build());
+    }
 
-	@Transactional
-	public ChatResponse createChatMessage(ChatRequest chatRequest) {
-		chatMessageRepository.save(ChatMessage.builder()
-			.userId(chatRequest.getUserId())
-			.roomId(chatRequest.getRoomId())
-			.text(chatRequest.getText())
-			.build());
+    private List<OpenAIMessage> findOpenAIMessagesByRoomId(int roomId) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findByRoomId(roomId);
+        return chatMessages.stream().map(chatMessage ->
+            OpenAIMessage.builder()
+                .role(
+                    chatMessage.belongToChatBot() ? OpenAIChatRole.ASSISTANT : OpenAIChatRole.USER)
+                .content(chatMessage.getText())
+                .build()
+        ).toList();
+    }
 
-		List<OpenAIMessage> openAIMessages = findOpenAIMessagesByRoomId(chatRequest.getRoomId());
+    @Transactional
+    public ChatResponse createChatMessage(ChatRequest chatRequest) {
+        chatMessageRepository.save(ChatMessage.builder()
+            .userId(chatRequest.getUserId())
+            .roomId(chatRequest.getRoomId())
+            .text(chatRequest.getText())
+            .build());
 
-		OpenAIResponse openAIResponse = openAIService.chatWithContext(openAIMessages);
+        List<OpenAIMessage> openAIMessages = findOpenAIMessagesByRoomId(chatRequest.getRoomId());
 
-		ChatMessage openAIMessage = ChatMessage.builder()
-			.userId(GeneralConstant.CHATBOT_USER_ID)
-			.roomId(chatRequest.getRoomId())
-			.text(openAIResponse.getText())
-			.build();
-		chatMessageRepository.save(openAIMessage);
+        OpenAIResponse openAIResponse = openAIService.chatWithContext(openAIMessages);
 
-		return ChatResponse.builder().text(openAIResponse.getText()).build();
-	}
+        ChatMessage openAIMessage = ChatMessage.builder()
+            .userId(GeneralConstant.CHATBOT_USER_ID)
+            .roomId(chatRequest.getRoomId())
+            .text(openAIResponse.getText())
+            .build();
+        chatMessageRepository.save(openAIMessage);
 
-	private List<ChatRoom> findChatRoomsOfDate(LocalDate date) {
-		Instant startOfDay = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
-		Instant endOfDay = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return ChatResponse.builder().text(openAIResponse.getText()).build();
+    }
 
-		return chatRoomRepository.findAllByCreatedAtBetween(startOfDay, endOfDay);
-	}
+    private List<ChatRoom> findChatRoomsOfDate(LocalDate date) {
+        Instant startOfDay = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant endOfDay = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-	private String buildTranscriptFromChatMessages(List<ChatMessage> chatMessages) {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (ChatMessage message : chatMessages) {
-			if (message.belongToUser()) {
-				stringBuilder.append("- Tôi: ");
-			} else {
-				stringBuilder.append("- Họ: ");
-			}
-			stringBuilder.append(message.getText()).append("\n");
-		}
+        return chatRoomRepository.findAllByCreatedAtBetween(startOfDay, endOfDay);
+    }
 
-		log.info("::buildTranscriptFromChatMessages::{}", stringBuilder);
+    private String buildTranscriptFromChatMessages(List<ChatMessage> chatMessages) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (ChatMessage message : chatMessages) {
+            if (message.belongToUser()) {
+                stringBuilder.append("- Tôi: ");
+            } else {
+                stringBuilder.append("- Họ: ");
+            }
+            stringBuilder.append(message.getText()).append("\n");
+        }
 
-		return stringBuilder.toString();
-	}
+        log.info("::buildTranscriptFromChatMessages::{}", stringBuilder);
 
-	private String buildTranscriptFromChatMessagesOfRooms(List<Integer> roomIds) {
-		StringBuilder stringBuilder = new StringBuilder();
-		for (int i = 0; i < roomIds.size(); i++) {
-			stringBuilder.append(String.format("Cuộc trò chuyện thứ %d:\n", i + 1));
-			List<ChatMessage> messages = chatMessageRepository.findAllByRoomId(roomIds.get(i));
-			stringBuilder.append(buildTranscriptFromChatMessages(messages));
-		}
+        return stringBuilder.toString();
+    }
 
-		return stringBuilder.toString();
-	}
+    private String buildTranscriptFromChatMessagesOfRooms(List<Integer> roomIds) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < roomIds.size(); i++) {
+            stringBuilder.append(String.format("Cuộc trò chuyện thứ %d:\n", i + 1));
+            List<ChatMessage> messages = chatMessageRepository.findAllByRoomId(roomIds.get(i));
+            stringBuilder.append(buildTranscriptFromChatMessages(messages));
+        }
 
-	private String summarizeChatMessagesOfRooms(List<Integer> roomIds) {
-		String promptMessage = SUMMARY_PROMPT + buildTranscriptFromChatMessagesOfRooms(roomIds);
-		OpenAIResponse response = openAIService.chatWithSingleMessage(
-			OpenAIChatRequest.builder().message(promptMessage).build());
-		return response.getText();
-	}
+        return stringBuilder.toString();
+    }
 
-	@Transactional
-	public String summarizeChatMessagesByDate(LocalDate date, String userId) {
-		List<ChatRoom> chatRooms = findChatRoomsOfDate(date);
-		List<Integer> chatRoomIds = chatRooms.stream().map(ChatRoom::getId).toList();
+    private String summarizeChatMessagesOfRooms(List<Integer> roomIds) {
+        String promptMessage = SUMMARY_PROMPT + buildTranscriptFromChatMessagesOfRooms(roomIds);
+        OpenAIResponse response = openAIService.chatWithSingleMessage(
+            OpenAIChatRequest.builder().message(promptMessage).build());
+        return response.getText();
+    }
 
-		String summarized = summarizeChatMessagesOfRooms(chatRoomIds);
+    @Transactional
+    public String summarizeChatMessagesByDate(LocalDate date, String userId) {
+        List<ChatRoom> chatRooms = findChatRoomsOfDate(date);
+        List<Integer> chatRoomIds = chatRooms.stream().map(ChatRoom::getId).toList();
 
-		chatSummaryRepository.save(ChatSummary.builder().date(date).text(summarized).userId(userId).build());
+        String summarized = summarizeChatMessagesOfRooms(chatRoomIds);
 
-		return summarized;
-	}
+        chatSummaryRepository.save(
+            ChatSummary.builder().date(date).text(summarized).userId(userId).build());
+
+        return summarized;
+    }
 
 }
