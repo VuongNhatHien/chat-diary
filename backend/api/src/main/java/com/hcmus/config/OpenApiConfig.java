@@ -2,6 +2,7 @@ package com.hcmus.config;
 
 import java.util.List;
 
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,19 +13,23 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class OpenApiConfig {
+	static {
+		SpringDocUtils.getConfig()
+			.addRequestWrapperToIgnore(ChatDiaryUserDetails.class);
+	}
 
-    @Bean
-    public OpenAPI openAPI() {
-        return new OpenAPI().components(
-            new Components()
-                .addSecuritySchemes(
-                    "bearerAuth",
-                    new SecurityScheme()
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT")
-                )
-        ).security(List.of(new SecurityRequirement().addList("bearerAuth")));
-    }
+	@Bean
+	public OpenAPI openAPI() {
+		return new OpenAPI().components(
+			new Components()
+				.addSecuritySchemes(
+					"bearerAuth",
+					new SecurityScheme()
+						.type(SecurityScheme.Type.HTTP)
+						.scheme("bearer")
+						.bearerFormat("JWT")
+				)
+		).security(List.of(new SecurityRequirement().addList("bearerAuth")));
+	}
 }
 

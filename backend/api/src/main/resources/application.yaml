@@ -1,11 +1,11 @@
 spring:
+  config:
+    import:
+      - classpath:mysql.yaml
+      - classpath:open-ai.yaml
+
   application:
     name: chat-diary
-
-  datasource:
-    url: jdbc:mysql://${MYSQL_URL}:${MYSQL_PORT}/chat_diary
-    username: root
-    password: ${MYSQL_ROOT_PASSWORD}
 
   jpa:
     show-sql: true

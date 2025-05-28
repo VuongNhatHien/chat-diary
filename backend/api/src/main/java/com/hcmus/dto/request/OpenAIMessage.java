@@ -1,4 +1,4 @@
-package com.hcmus.dto.response;
+package com.hcmus.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
-public class LoginResponse {
-	private String token;
+public class OpenAIMessage {
+	OpenAIChatRole role;
+	String content;
 }

@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginResponse {
-	private String token;
+public class ChatResponse {
+	private String text;
 }

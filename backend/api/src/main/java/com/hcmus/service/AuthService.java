@@ -25,39 +25,39 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final ModelMapper modelMapper;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authenticationManager;
+	private final ModelMapper modelMapper;
 
-    public void signup(RegisterRequest input) {
-        User user = modelMapper.map(input, User.class);
+	public void signup(RegisterRequest input) {
+		User user = modelMapper.map(input, User.class);
 
-        user.setRoles(Role.USER.getValue());
-        user.setPassword(passwordEncoder.encode(input.getPassword()));
-        try {
-            userRepository.save(user);
-        } catch (DataIntegrityViolationException exception) {
-            throw new BadRequestException(ErrorCodes.EMAIL_DUPLICATED);
-        }
-    }
+		user.setRoles(Role.USER.getValue());
+		user.setPassword(passwordEncoder.encode(input.getPassword()));
+		try {
+			userRepository.save(user);
+		} catch (DataIntegrityViolationException exception) {
+			throw new BadRequestException(ErrorCodes.EMAIL_DUPLICATED);
+		}
+	}
 
-    public ChatDiaryUserDetails login(LoginRequest input) {
-        User user = userRepository.findByEmail(input.getEmail())
-            .orElseThrow(() -> new BadRequestException(ErrorCodes.EMAIL_NOT_FOUND));
+	public ChatDiaryUserDetails login(LoginRequest input) {
+		User user = userRepository.findByEmail(input.getEmail())
+			.orElseThrow(() -> new BadRequestException(ErrorCodes.EMAIL_NOT_FOUND));
 
-        try {
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getId(), input.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new BadRequestException(ErrorCodes.WRONG_PASSWORD);
-        }
+		try {
+			authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(user.getId(), input.getPassword()));
+		} catch (BadCredentialsException e) {
+			throw new BadRequestException(ErrorCodes.WRONG_PASSWORD);
+		}
 
-        return new ChatDiaryUserDetails(user);
-    }
+		return new ChatDiaryUserDetails(user);
+	}
 
-    public String getMeId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
-    }
+	public String getMeId() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return authentication.getName();
+	}
 }
