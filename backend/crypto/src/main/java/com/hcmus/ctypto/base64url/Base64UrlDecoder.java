@@ -1,11 +1,14 @@
 package com.hcmus.ctypto.base64url;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 public class Base64UrlDecoder {
     public static String decode(String str) {
-        return new String(java.util.Base64.getUrlDecoder().decode(str), java.nio.charset.StandardCharsets.UTF_8);
+        return new String(Base64.getUrlDecoder().decode(str), StandardCharsets.UTF_8);
     }
 
     public static byte[] decodeToBytes(String str) {
-        return java.util.Base64.getUrlDecoder().decode(str);
+        return Base64.getUrlDecoder().decode(str);
     }
 }

@@ -15,10 +15,10 @@ public class RSA {
         return signature.sign();
     }
 
-    public static void verifySignature(byte[] data, byte[] signature, PublicKey key) throws Exception {
+    public static void verifySignature(String data, byte[] signature, PublicKey key) throws Exception {
         Signature sig = Signature.getInstance("SHA256withRSA");
         sig.initVerify(key);
-        sig.update(data);
+        sig.update(data.getBytes(StandardCharsets.UTF_8));
         if (!sig.verify(signature)) {
             throw new JwtException("Invalid JWT signature");
         }

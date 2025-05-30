@@ -1,5 +1,6 @@
 package com.hcmus.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmus.config.property.JwtProperties;
 import com.hcmus.ctypto.rsa.RSAJwtDecoder;
 import com.hcmus.ctypto.rsa.RSAJwtEncoder;
@@ -16,12 +17,12 @@ public class JwtConfig {
 	private final JwtProperties jwtProperties;
 
 	@Bean
-	public JwtEncoder jwtEncoder() {
-		return new RSAJwtEncoder(jwtProperties.getRsaPrivateKey());
+	public JwtEncoder jwtEncoder(ObjectMapper objectMapper) {
+		return new RSAJwtEncoder(jwtProperties.getRsaPrivateKey(), objectMapper);
 	}
 
 	@Bean
-	public JwtDecoder jwtDecoder() {
-		return new RSAJwtDecoder(jwtProperties.getRsaPublicKey());
+	public JwtDecoder jwtDecoder(ObjectMapper objectMapper) {
+		return new RSAJwtDecoder(jwtProperties.getRsaPublicKey(), objectMapper);
 	}
 }

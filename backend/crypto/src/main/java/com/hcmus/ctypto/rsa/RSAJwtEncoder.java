@@ -15,10 +15,11 @@ import com.hcmus.ctypto.base64url.Base64UrlEncoder;
 
 public class RSAJwtEncoder implements JwtEncoder {
     private final PrivateKey privateKey;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public RSAJwtEncoder(PrivateKey privateKey) {
+    public RSAJwtEncoder(PrivateKey privateKey, ObjectMapper objectMapper) {
         this.privateKey = privateKey;
+        this.objectMapper = objectMapper;
     }
 
     @Override

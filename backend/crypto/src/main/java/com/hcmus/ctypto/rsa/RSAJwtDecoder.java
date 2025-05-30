@@ -17,10 +17,11 @@ import static com.hcmus.ctypto.rsa.RSA.verifySignature;
 public class RSAJwtDecoder implements JwtDecoder {
 
     private final RSAPublicKey publicKey;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
-    public RSAJwtDecoder(RSAPublicKey publicKey) {
+    public RSAJwtDecoder(RSAPublicKey publicKey, ObjectMapper objectMapper) {
         this.publicKey = publicKey;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -40,10 +41,10 @@ public class RSAJwtDecoder implements JwtDecoder {
             byte[] signatureBytes = Base64UrlDecoder.decodeToBytes(encodedSignature);
 
             String signingInput = encodedHeader + "." + encodedPayload;
-            verifySignature(signingInput.getBytes(StandardCharsets.UTF_8), signatureBytes, publicKey);
+            verifySignature(signingInput, signatureBytes, publicKey);
 
-            Map<String, Object> headers = objectMapper.readValue(headerJson, new TypeReference<Map<String, Object>>() {});
-            Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<Map<String, Object>>() {});
+            Map<String, Object> headers = objectMapper.readValue(headerJson, new TypeReference<>() {});
+            Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<>() {});
 
             Instant issuedAt = claims.containsKey("iat") ? Instant.ofEpochSecond(((Number) claims.get("iat")).longValue()) : null;
             Instant expiresAt = claims.containsKey("exp") ? Instant.ofEpochSecond(((Number) claims.get("exp")).longValue()) : null;
