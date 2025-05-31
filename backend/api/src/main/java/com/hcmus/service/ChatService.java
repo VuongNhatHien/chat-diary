@@ -13,14 +13,15 @@ import com.hcmus.model.ChatSummary;
 import com.hcmus.repository.ChatMessageRepository;
 import com.hcmus.repository.ChatRoomRepository;
 import com.hcmus.repository.ChatSummaryRepository;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -28,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChatService {
 
     private static final String SUMMARY_PROMPT =
-        """
-            Dưới đây là những cuộc trò chuyện giữa tôi và 1 người bạn trong ngày hôm nay, hãy viết nhật ký cho tôi về cuộc trò chuyện trong ngày hôm nay. Chỉ viết và không giải thích gì thêm:
-            """;
+            """
+                    Dưới đây là những cuộc trò chuyện giữa tôi và 1 người bạn trong ngày hôm nay, hãy viết nhật ký cho tôi về cuộc trò chuyện trong ngày hôm nay. Chỉ viết và không giải thích gì thêm:
+                    """;
     private final ChatRoomRepository chatRoomRepository;
     private final OpenAIService openAIService;
     private final ChatMessageRepository chatMessageRepository;
@@ -44,31 +45,31 @@ public class ChatService {
     private List<OpenAIMessage> findOpenAIMessagesByRoomId(int roomId) {
         List<ChatMessage> chatMessages = chatMessageRepository.findByRoomId(roomId);
         return chatMessages.stream().map(chatMessage ->
-            OpenAIMessage.builder()
-                .role(
-                    chatMessage.belongToChatBot() ? OpenAIChatRole.ASSISTANT : OpenAIChatRole.USER)
-                .content(chatMessage.getText())
-                .build()
+                OpenAIMessage.builder()
+                        .role(
+                                chatMessage.belongToChatBot() ? OpenAIChatRole.ASSISTANT : OpenAIChatRole.USER)
+                        .content(chatMessage.getText())
+                        .build()
         ).toList();
     }
 
     @Transactional
     public ChatResponse createChatMessage(ChatRequest chatRequest) {
         chatMessageRepository.save(ChatMessage.builder()
-            .userId(chatRequest.getUserId())
-            .roomId(chatRequest.getRoomId())
-            .text(chatRequest.getText())
-            .build());
+                .userId(chatRequest.getUserId())
+                .roomId(chatRequest.getRoomId())
+                .text(chatRequest.getText())
+                .build());
 
         List<OpenAIMessage> openAIMessages = findOpenAIMessagesByRoomId(chatRequest.getRoomId());
 
         OpenAIResponse openAIResponse = openAIService.chatWithContext(openAIMessages);
 
         ChatMessage openAIMessage = ChatMessage.builder()
-            .userId(GeneralConstant.CHATBOT_USER_ID)
-            .roomId(chatRequest.getRoomId())
-            .text(openAIResponse.getText())
-            .build();
+                .userId(GeneralConstant.CHATBOT_USER_ID)
+                .roomId(chatRequest.getRoomId())
+                .text(openAIResponse.getText())
+                .build();
         chatMessageRepository.save(openAIMessage);
 
         return ChatResponse.builder().text(openAIResponse.getText()).build();
@@ -111,7 +112,7 @@ public class ChatService {
     private String summarizeChatMessagesOfRooms(List<Integer> roomIds) {
         String promptMessage = SUMMARY_PROMPT + buildTranscriptFromChatMessagesOfRooms(roomIds);
         OpenAIResponse response = openAIService.chatWithSingleMessage(
-            OpenAIChatRequest.builder().message(promptMessage).build());
+                OpenAIChatRequest.builder().message(promptMessage).build());
         return response.getText();
     }
 
@@ -123,7 +124,7 @@ public class ChatService {
         String summarized = summarizeChatMessagesOfRooms(chatRoomIds);
 
         chatSummaryRepository.save(
-            ChatSummary.builder().date(date).text(summarized).userId(userId).build());
+                ChatSummary.builder().date(date).text(summarized).userId(userId).build());
 
         return summarized;
     }

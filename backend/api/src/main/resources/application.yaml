@@ -3,6 +3,9 @@ spring:
     import:
       - classpath:mysql.yaml
       - classpath:open-ai.yaml
+      - classpath:google.yaml
+      - classpath:jwt.yaml
+      - classpath:domain.yaml
 
   application:
     name: chat-diary
@@ -11,17 +14,3 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
-
-security:
-  jwt:
-    expiration: ${JWT_EXPIRE}
-    rsa-private-key: classpath:certs/private.pem
-    rsa-public-key: classpath:certs/public.pem
-
-oauth:
-  google:
-    clientId: ${GOOGLE_CLIENT_ID}
-    clientSecret: ${GOOGLE_CLIENT_SECRET}
-
-domain:
-  frontend: ${FRONTEND_URL}

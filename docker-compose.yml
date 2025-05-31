@@ -1,0 +1,49 @@
+services:
+  backend:
+    container_name: backend
+    image: nhathien/backend:latest
+    build:
+      context: ./backend
+      args:
+        JAR_FILE: api/build/libs/api-0.0.1-SNAPSHOT.jar
+    restart: always
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_URL: ${MYSQL_URL}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_EXPIRE: ${JWT_EXPIRE}
+      FRONTEND_URL: ${FRONTEND_URL}
+    depends_on:
+      - mysql
+
+  frontend:
+    container_name: frontend
+    image: nhathien/frontend:latest
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+    # environment:
+      # NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    depends_on:
+      - backend
+    restart: always
+
+  mysql:
+    image: mysql:8
+    restart: no
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql  # Use named volume instead
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  mysql_data:
