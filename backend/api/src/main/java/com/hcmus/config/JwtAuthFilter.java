@@ -1,10 +1,13 @@
 package com.hcmus.config;
 
+import static com.hcmus.constant.GeneralConstant.ACCESS_TOKEN_KEY;
+
 import com.hcmus.dto.response.ErrorCodes;
 import com.hcmus.exception.UnauthorizedException;
 import com.hcmus.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,20 +37,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (ACCESS_TOKEN_KEY.equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                }
+            }
+        }
+
+        if (accessToken.isEmpty()) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            final String jwt = authHeader.substring(7);
-            if (jwtService.isTokenExpired(jwt)) {
+            if (jwtService.isTokenExpired(accessToken)) {
                 throw new UnauthorizedException(ErrorCodes.JWT_EXPIRED);
             }
 
-            final String userId = jwtService.extractUsername(jwt);
+            String userId = jwtService.extractUsername(accessToken);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

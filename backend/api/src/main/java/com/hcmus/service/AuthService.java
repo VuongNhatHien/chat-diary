@@ -58,4 +58,9 @@ public class AuthService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication.getName();
     }
+
+    public User getMe() {
+        String meId = getMeId();
+        return userRepository.findById(meId).orElse(null);
+    }
 }

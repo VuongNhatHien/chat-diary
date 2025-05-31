@@ -1,5 +1,7 @@
 package com.hcmus.controller;
 
+import static com.hcmus.constant.GeneralConstant.ACCESS_TOKEN_KEY;
+
 import com.hcmus.config.ChatDiaryUserDetails;
 import com.hcmus.dto.request.LoginRequest;
 import com.hcmus.dto.request.RegisterRequest;
@@ -9,6 +11,8 @@ import com.hcmus.dto.response.LoginResponse;
 import com.hcmus.service.AuthService;
 import com.hcmus.service.GoogleOAuthService;
 import com.hcmus.service.JwtService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -31,7 +35,7 @@ public class AuthController {
     private final AuthService authService;
     private final GoogleOAuthService googleOauthService;
 
-    @PostMapping("/sign-up")
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<Void> register(@RequestBody @Valid RegisterRequest registerRequest) {
         authService.signup(registerRequest);
@@ -39,18 +43,23 @@ public class AuthController {
         return ApiResponse.created();
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/login")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<LoginResponse> authenticate(@RequestBody @Valid LoginRequest loginRequest) {
+    public ApiResponse<LoginResponse> authenticate(@RequestBody @Valid LoginRequest loginRequest,
+        HttpServletResponse httpServletResponse) {
         ChatDiaryUserDetails authenticatedUser = authService.login(loginRequest);
 
-        String jwtToken = jwtService.generateToken(authenticatedUser.getUsername());
+        String accessToken = jwtService.generateToken(authenticatedUser.getUsername());
 
-        LoginResponse response = LoginResponse.builder()
-            .token(jwtToken)
-            .build();
+        Cookie cookie = new Cookie(ACCESS_TOKEN_KEY, accessToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
 
-        return ApiResponse.created(response);
+        httpServletResponse.addCookie(cookie);
+
+        return ApiResponse.created();
     }
 
     @GetMapping("/google-login")
