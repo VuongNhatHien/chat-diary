@@ -1,0 +1,4 @@
+open-ai:
+  domain: ${OPEN_AI_DOMAIN}
+  secretKey: ${OPEN_AI_SECRET_KEY}
+  model: ${OPEN_API_MODEL}
