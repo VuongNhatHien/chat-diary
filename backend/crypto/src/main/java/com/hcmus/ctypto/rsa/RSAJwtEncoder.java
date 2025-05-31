@@ -2,24 +2,18 @@ package com.hcmus.ctypto.rsa;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.JwtEncodingException;
+import com.hcmus.ctypto.base64url.Base64UrlEncoder;
+import com.hcmus.utils.ObjectMapperFactory;
+import org.springframework.security.oauth2.jwt.*;
 
 import java.security.PrivateKey;
 
-import com.hcmus.ctypto.base64url.Base64UrlEncoder;
-
 public class RSAJwtEncoder implements JwtEncoder {
     private final PrivateKey privateKey;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = ObjectMapperFactory.create();
 
-    public RSAJwtEncoder(PrivateKey privateKey, ObjectMapper objectMapper) {
+    public RSAJwtEncoder(PrivateKey privateKey) {
         this.privateKey = privateKey;
-        this.objectMapper = objectMapper;
     }
 
     @Override

@@ -3,11 +3,11 @@ package com.hcmus.ctypto.rsa;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hcmus.ctypto.base64url.Base64UrlDecoder;
+import com.hcmus.utils.ObjectMapperFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Map;
@@ -17,11 +17,10 @@ import static com.hcmus.ctypto.rsa.RSA.verifySignature;
 public class RSAJwtDecoder implements JwtDecoder {
 
     private final RSAPublicKey publicKey;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = ObjectMapperFactory.create();
 
-    public RSAJwtDecoder(RSAPublicKey publicKey, ObjectMapper objectMapper) {
+    public RSAJwtDecoder(RSAPublicKey publicKey) {
         this.publicKey = publicKey;
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -43,8 +42,10 @@ public class RSAJwtDecoder implements JwtDecoder {
             String signingInput = encodedHeader + "." + encodedPayload;
             verifySignature(signingInput, signatureBytes, publicKey);
 
-            Map<String, Object> headers = objectMapper.readValue(headerJson, new TypeReference<>() {});
-            Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<>() {});
+            Map<String, Object> headers = objectMapper.readValue(headerJson, new TypeReference<>() {
+            });
+            Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<>() {
+            });
 
             Instant issuedAt = claims.containsKey("iat") ? Instant.ofEpochSecond(((Number) claims.get("iat")).longValue()) : null;
             Instant expiresAt = claims.containsKey("exp") ? Instant.ofEpochSecond(((Number) claims.get("exp")).longValue()) : null;
