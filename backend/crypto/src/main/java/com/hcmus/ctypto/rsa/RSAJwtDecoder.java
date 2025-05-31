@@ -47,8 +47,8 @@ public class RSAJwtDecoder implements JwtDecoder {
             Map<String, Object> claims = objectMapper.readValue(payloadJson, new TypeReference<>() {
             });
 
-            Instant issuedAt = claims.containsKey("iat") ? Instant.ofEpochSecond(((Number) claims.get("iat")).longValue()) : null;
-            Instant expiresAt = claims.containsKey("exp") ? Instant.ofEpochSecond(((Number) claims.get("exp")).longValue()) : null;
+            Instant issuedAt = parseInstantFromIsoString(claims.get("iat"));
+            Instant expiresAt = parseInstantFromIsoString(claims.get("exp"));
 
             return new Jwt(token, issuedAt, expiresAt, headers, claims);
 
@@ -56,4 +56,18 @@ public class RSAJwtDecoder implements JwtDecoder {
             throw new JwtException("Failed to decode or verify JWT", e);
         }
     }
+
+    private Instant parseInstantFromIsoString(Object value) {
+        if (value instanceof String) {
+            try {
+                return Instant.parse((String) value);
+            } catch (Exception e) {
+                throw new JwtException("Invalid ISO date format for JWT claim: " + value, e);
+            }
+        } else if (value != null) {
+            throw new JwtException("Unsupported type for time claim: " + value.getClass());
+        }
+        return null;
+    }
+
 }
