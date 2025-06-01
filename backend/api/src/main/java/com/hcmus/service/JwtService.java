@@ -1,31 +1,14 @@
 package com.hcmus.service;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.time.Instant;
-import java.util.Collections;
-
+import com.hcmus.oauth.google.GoogleProperties;
+import com.hcmus.property.JwtProperties;
+import com.hcmus.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.hcmus.config.property.GoogleProperties;
-import com.hcmus.config.property.JwtProperties;
-import com.hcmus.model.Role;
-import com.hcmus.model.User;
-import com.hcmus.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -46,13 +29,13 @@ public class JwtService {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
-            .issuedAt(now)
-            .expiresAt(now.plusMillis(jwtProperties.getExpiration()))
-            .subject(username)
-            .build();
+                .issuedAt(now)
+                .expiresAt(now.plusMillis(jwtProperties.getExpiration()))
+                .subject(username)
+                .build();
 
         var encoderParameters = JwtEncoderParameters.from(
-            JwsHeader.with(SignatureAlgorithm.RS256).build(), claims);
+                JwsHeader.with(SignatureAlgorithm.RS256).build(), claims);
 
         return encoder.encode(encoderParameters).getTokenValue();
     }
@@ -65,40 +48,5 @@ public class JwtService {
         } catch (JwtException e) {
             return true;
         }
-    }
-
-    public String decodeGoogleToken(String token) throws GeneralSecurityException, IOException {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
-            new JacksonFactory())
-            .setAudience(Collections.singletonList(googleProperties.getClientId()))
-            .build();
-
-        GoogleIdToken idToken = verifier.verify(token);
-
-        if (idToken == null) {
-            return null;
-        }
-
-        GoogleIdToken.Payload payload = idToken.getPayload();
-
-        String email = payload.getEmail();
-        User user = new User();
-        if (userRepository.findByEmail(email).isEmpty()) {
-            String subject = payload.getSubject();
-            String firstName = (String) payload.get("given_name");
-            String lastName = (String) payload.get("family_name");
-
-            user.setId(subject);
-            user.setEmail(email);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setRoles(Role.USER.getValue());
-
-            userRepository.save(user);
-        } else {
-            user = userRepository.findByEmail(email).get();
-        }
-
-        return generateToken(user.getId());
     }
 }

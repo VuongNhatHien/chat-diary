@@ -1,0 +1,1 @@
+alter table chat_message rename column content to text
