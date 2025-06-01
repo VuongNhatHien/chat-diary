@@ -57,15 +57,11 @@ public class AuthController {
         return ApiResponse.ok();
     }
 
-    @PostMapping("/google-login")
-    public ApiResponse<Void> googleLogin(@RequestParam("code") String authorizationCode, HttpServletResponse httpServletResponse)
-            throws
-            GeneralSecurityException,
-            IOException {
-        GoogleOAuthTokenRaw tokenResponse = googleClient.getGoogleOAuthToken(
-                authorizationCode);
+    @PostMapping("/google/login")
+    public ApiResponse<Void> googleLogin(@RequestParam("code") String authorizationCode, HttpServletResponse httpServletResponse) {
+        GoogleOAuthTokenRaw tokenResponse = googleClient.getGoogleOAuthToken(authorizationCode);
 
-        String jwtToken = googleService.decodeGoogleToken(tokenResponse.getIdToken());
+        String jwtToken = googleService.generateTokenFromGoogleIdToken(tokenResponse.getIdToken());
 
         authService.setCookie(httpServletResponse, jwtToken);
 

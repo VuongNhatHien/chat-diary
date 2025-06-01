@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router';
 export default function GoogleOAuthCallback() {
 	const [searchParams] = useSearchParams();
 	const { mutateAsync } = useUpdate(
-		`/auth/google-login?code=${searchParams.get('code')}`
+		`/auth/google/login?code=${searchParams.get('code')}`
 	);
 
 	useEffect(() => {
