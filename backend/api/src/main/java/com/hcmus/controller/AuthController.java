@@ -1,6 +1,7 @@
 package com.hcmus.controller;
 
 import com.hcmus.config.ChatDiaryUserDetails;
+import com.hcmus.constant.GeneralConstant;
 import com.hcmus.dto.request.LoginRequest;
 import com.hcmus.dto.request.RegisterRequest;
 import com.hcmus.dto.response.ApiResponse;
@@ -45,16 +46,9 @@ public class AuthController {
 
         String accessToken = jwtService.generateToken(authenticatedUser.getUsername());
 
-        authService.setCookie(httpServletResponse, accessToken);
+        authService.setCookie(httpServletResponse, GeneralConstant.ACCESS_TOKEN_KEY, accessToken);
 
         return ApiResponse.created();
-    }
-
-    @PutMapping("/logout")
-    public ApiResponse<Void> logout(HttpServletResponse httpServletResponse) {
-        authService.removeCookie(httpServletResponse);
-
-        return ApiResponse.ok();
     }
 
     @PostMapping("/google/login")
@@ -63,7 +57,14 @@ public class AuthController {
 
         String jwtToken = googleService.generateTokenFromGoogleIdToken(tokenResponse.getIdToken());
 
-        authService.setCookie(httpServletResponse, jwtToken);
+        authService.setCookie(httpServletResponse, GeneralConstant.ACCESS_TOKEN_KEY, jwtToken);
+
+        return ApiResponse.ok();
+    }
+
+    @PutMapping("/logout")
+    public ApiResponse<Void> logout(HttpServletResponse httpServletResponse) {
+        authService.removeCookie(httpServletResponse, GeneralConstant.ACCESS_TOKEN_KEY);
 
         return ApiResponse.ok();
     }

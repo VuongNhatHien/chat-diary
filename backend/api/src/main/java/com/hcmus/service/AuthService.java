@@ -1,6 +1,7 @@
 package com.hcmus.service;
 
 import com.hcmus.config.ChatDiaryUserDetails;
+import com.hcmus.constant.GeneralConstant;
 import com.hcmus.dto.request.LoginRequest;
 import com.hcmus.dto.request.RegisterRequest;
 import com.hcmus.dto.response.ErrorCodes;
@@ -20,8 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static com.hcmus.constant.GeneralConstant.ACCESS_TOKEN_KEY;
 
 @Service
 @RequiredArgsConstructor
@@ -68,8 +67,8 @@ public class AuthService {
         return userRepository.findById(meId).orElse(null);
     }
 
-    public void setCookie(HttpServletResponse servletResponse, String accessToken) {
-        Cookie cookie = new Cookie(ACCESS_TOKEN_KEY, accessToken);
+    public void setCookie(HttpServletResponse servletResponse, String key, String value) {
+        Cookie cookie = new Cookie(key, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
@@ -78,8 +77,8 @@ public class AuthService {
         servletResponse.addCookie(cookie);
     }
 
-    public void removeCookie(HttpServletResponse servletResponse) {
-        Cookie cookie = new Cookie(ACCESS_TOKEN_KEY, "");
+    public void removeCookie(HttpServletResponse servletResponse, String key) {
+        Cookie cookie = new Cookie(key, "");
 
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
