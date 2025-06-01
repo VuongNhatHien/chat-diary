@@ -1,6 +1,6 @@
 package com.hcmus.dto.response;
 
-import com.hcmus.openai.OpenAIResponseRaw;
+import com.hcmus.rest_client.openai.OpenAIResponseRaw;
 import lombok.*;
 
 @Getter

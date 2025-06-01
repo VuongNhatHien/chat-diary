@@ -5,7 +5,6 @@ import com.hcmus.exception.UnauthorizedException;
 import com.hcmus.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -22,8 +21,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
-import static com.hcmus.constant.GeneralConstant.ACCESS_TOKEN_KEY;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -38,28 +35,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        Cookie[] cookies = request.getCookies();
-        String accessToken = "";
+        final String authHeader = request.getHeader("Authorization");
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (ACCESS_TOKEN_KEY.equals(cookie.getName())) {
-                    accessToken = cookie.getValue();
-                }
-            }
-        }
-
-        if (accessToken.isEmpty()) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            if (jwtService.isTokenExpired(accessToken)) {
+            final String jwt = authHeader.substring(7);
+            if (jwtService.isTokenExpired(jwt)) {
                 throw new UnauthorizedException(ErrorCodes.JWT_EXPIRED);
             }
 
-            String userId = jwtService.extractUsername(accessToken);
+            final String userId = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 

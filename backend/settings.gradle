@@ -2,4 +2,3 @@ rootProject.name = 'backend'
 
 include 'crypto'
 include 'api'
-include 'third_party'

@@ -1,21 +1,17 @@
 package com.hcmus.config;
 
+import java.util.List;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import java.util.List;
-import org.springdoc.core.utils.SpringDocUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
-
-    static {
-        SpringDocUtils.getConfig()
-            .addRequestWrapperToIgnore(ChatDiaryUserDetails.class);
-    }
 
     @Bean
     public OpenAPI openAPI() {

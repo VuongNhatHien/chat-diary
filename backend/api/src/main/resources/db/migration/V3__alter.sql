@@ -1,1 +1,0 @@
-alter table room rename chat_room

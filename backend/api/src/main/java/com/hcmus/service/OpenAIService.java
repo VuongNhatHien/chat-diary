@@ -3,8 +3,8 @@ package com.hcmus.service;
 import com.hcmus.dto.request.OpenAIChatRequest;
 import com.hcmus.dto.request.OpenAIMessage;
 import com.hcmus.dto.response.OpenAIResponse;
-import com.hcmus.openai.OpenAIClient;
-import com.hcmus.openai.OpenAIResponseRaw;
+import com.hcmus.rest_client.openai.OpenAIClient;
+import com.hcmus.rest_client.openai.OpenAIResponseRaw;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

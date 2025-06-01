@@ -1,11 +1,11 @@
 package com.hcmus.repository;
 
-import com.hcmus.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, String> {
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    Optional<User> findByEmail(String email);
+import com.hcmus.model.User;
+
+public interface UserRepository extends JpaRepository<User, String> {
+	Optional<User> findByEmail(String email);
 }
