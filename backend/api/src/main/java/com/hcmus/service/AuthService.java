@@ -8,6 +8,8 @@ import com.hcmus.exception.BadRequestException;
 import com.hcmus.model.Role;
 import com.hcmus.model.User;
 import com.hcmus.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -18,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static com.hcmus.constant.GeneralConstant.ACCESS_TOKEN_KEY;
 
 @Service
 @RequiredArgsConstructor
@@ -42,11 +46,11 @@ public class AuthService {
 
     public ChatDiaryUserDetails login(LoginRequest input) {
         User user = userRepository.findByEmail(input.getEmail())
-            .orElseThrow(() -> new BadRequestException(ErrorCodes.EMAIL_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCodes.EMAIL_NOT_FOUND));
 
         try {
             authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getId(), input.getPassword()));
+                    new UsernamePasswordAuthenticationToken(user.getId(), input.getPassword()));
         } catch (BadCredentialsException e) {
             throw new BadRequestException(ErrorCodes.WRONG_PASSWORD);
         }
@@ -62,5 +66,27 @@ public class AuthService {
     public User getMe() {
         String meId = getMeId();
         return userRepository.findById(meId).orElse(null);
+    }
+
+    public void setCookie(HttpServletResponse servletResponse, String accessToken) {
+        Cookie cookie = new Cookie(ACCESS_TOKEN_KEY, accessToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
+
+        servletResponse.addCookie(cookie);
+    }
+
+    public void removeCookie(HttpServletResponse servletResponse) {
+        Cookie cookie = new Cookie(ACCESS_TOKEN_KEY, "");
+
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
+
+        servletResponse.addCookie(cookie);
     }
 }

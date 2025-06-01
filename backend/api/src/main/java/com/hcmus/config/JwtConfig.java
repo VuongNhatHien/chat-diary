@@ -1,8 +1,8 @@
 package com.hcmus.config;
 
-import com.hcmus.config.property.JwtProperties;
 import com.hcmus.ctypto.rsa.RSAJwtDecoder;
 import com.hcmus.ctypto.rsa.RSAJwtEncoder;
+import com.hcmus.property.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
