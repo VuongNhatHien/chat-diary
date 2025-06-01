@@ -6,7 +6,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.hcmus.model.Role;
 import com.hcmus.model.User;
+import com.hcmus.oauth.google.GoogleClient;
 import com.hcmus.oauth.google.GoogleProperties;
+import com.hcmus.oauth.google.GoogleUserInfoRaw;
 import com.hcmus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class GoogleService {
     private final GoogleProperties googleProperties;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final GoogleClient googleClient;
 
     public String decodeGoogleToken(String token) throws GeneralSecurityException, IOException {
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(),
@@ -48,6 +51,31 @@ public class GoogleService {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setRoles(Role.USER.getValue());
+
+            userRepository.save(user);
+        } else {
+            user = userRepository.findByEmail(email).get();
+        }
+
+        return jwtService.generateToken(user.getId());
+    }
+
+    public String generateTokenFromGoogleIdToken(String idToken) {
+        GoogleUserInfoRaw userInfo = googleClient.getGoogleUserInfo(idToken);
+        return generateTokenFromGoogleUserInfo(userInfo);
+    }
+
+    private String generateTokenFromGoogleUserInfo(GoogleUserInfoRaw userInfo) {
+        String email = userInfo.getEmail();
+        User user;
+        if (userRepository.findByEmail(email).isEmpty()) {
+            user = User.builder()
+                    .id(userInfo.getSub())
+                    .email(email)
+                    .firstName(userInfo.getGivenName())
+                    .lastName(userInfo.getFamilyName())
+                    .roles(Role.USER.getValue())
+                    .build();
 
             userRepository.save(user);
         } else {

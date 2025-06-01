@@ -28,5 +28,6 @@ public class User {
     private String firstName;
     private String lastName;
     @JsonIgnore
-    private String roles;
+    @Builder.Default
+    private String roles = "ROLE_USER";
 }

@@ -23,6 +23,5 @@ public class ChatDiaryUserDetailService implements UserDetailsService {
 
         return userDetail.map(ChatDiaryUserDetails::new)
             .orElseThrow(() -> new NotFoundException(ErrorCodes.USER_NOT_FOUND));
-
     }
 }
