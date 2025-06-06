@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    host: localhost:8081
+    host: localhost
     import:
       - classpath:aws.yaml
   application:

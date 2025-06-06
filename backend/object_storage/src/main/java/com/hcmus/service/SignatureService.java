@@ -88,14 +88,14 @@ public class SignatureService {
         if (queryString == null) return true;
 
         Map<String, String> queryParams = Arrays.stream(queryString.split("&"))
-                .map(s -> s.split("=", 2))
+                .map(str -> str.split("=", 2))
                 .collect(Collectors.toMap(
                         s -> s[0],
                         s -> s.length > 1 ? URLDecoder.decode(s[1], StandardCharsets.UTF_8) : ""
                 ));
 
         String signature = queryParams.get("X-Amz-Signature");
-        String credential = queryParams.get("X-Amz-Credential");
+        String credential = URLDecoder.decode(queryParams.get("X-Amz-Credential"), StandardCharsets.UTF_8);;
         String amzDate = queryParams.get("X-Amz-Date");
         String signedHeaders = queryParams.get("X-Amz-SignedHeaders");
 
@@ -113,10 +113,9 @@ public class SignatureService {
         canonicalQuery.remove("X-Amz-Signature");
 
         String canonicalQueryString = canonicalQuery.entrySet().stream()
-                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining("&"));
-
-        String canonicalHeaders = "host:" + request.getServerName() + "\n";
+        String canonicalHeaders = "host:" + request.getHeader("Host") + "\n";
         String payloadHash = AwsSignatureHelper.sha256Hex("");
 
         String canonicalRequest = method + "\n" +

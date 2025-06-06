@@ -5,14 +5,15 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
 
 @Service
 public class StorageService {
@@ -26,16 +27,11 @@ public class StorageService {
         Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public ResponseEntity<?> read(String bucket, String key) throws IOException {
+    public File read(String bucket, String key) throws IOException {
         Path filePath = baseDir.resolve(bucket).resolve(key);
         if (!Files.exists(filePath)) {
-            return ResponseEntity.notFound().build();
+            throw new FileNotFoundException("Object not found: " + key);
         }
-
-        InputStream is = new FileInputStream(filePath.toFile());
-        InputStreamResource resource = new InputStreamResource(is);
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
+        return filePath.toFile();
     }
 }
