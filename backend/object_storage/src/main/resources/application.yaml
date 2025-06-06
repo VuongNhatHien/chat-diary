@@ -2,5 +2,9 @@ server:
   port: 8081
 
 spring:
+  config:
+    host: localhost:8081
+    import:
+      - classpath:aws.yaml
   application:
     name: object-storage
