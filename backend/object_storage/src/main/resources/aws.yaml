@@ -1,0 +1,6 @@
+aws:
+  secret-key: my-secret-key
+  access-key: my-access-key
+  region: us-west-2
+  service: s3
+  bucket: my-object-storage-bucket
