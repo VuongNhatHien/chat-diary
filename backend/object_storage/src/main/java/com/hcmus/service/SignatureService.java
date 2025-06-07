@@ -66,7 +66,7 @@ public class SignatureService {
 
         String canonicalRequest = method + "\n" +
                 canonicalUri + "\n" +
-                canonicalQueryString + "\n" +
+//                canonicalQueryString + "\n" +
                 "host:" + host + "\n" +
                 "\n" +
                 signedHeaders + "\n" +
@@ -120,7 +120,7 @@ public class SignatureService {
 
         String canonicalRequest = method + "\n" +
                 canonicalUri + "\n" +
-                canonicalQueryString + "\n" +
+//                canonicalQueryString + "\n" +
                 canonicalHeaders + "\n" +
                 signedHeaders + "\n" +
                 payloadHash;

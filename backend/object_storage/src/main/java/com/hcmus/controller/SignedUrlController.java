@@ -18,12 +18,12 @@ public class SignedUrlController {
 
     @GetMapping("/get-url")
     public ResponseEntity<String> getSignedDownloadUrl(@RequestParam String key) throws Exception {
-        return ResponseEntity.ok(signatureService.generateSignedUrl(key, "GET", 600));
+        return ResponseEntity.ok(signatureService.generateSignedUrl(key, "GET", 10));
     }
 
     @GetMapping("/put-url")
     public ResponseEntity<String> getSignedUploadUrl(@RequestParam String key) throws Exception {
-        return ResponseEntity.ok(signatureService.generateSignedUrl(key, "PUT", 600));
+        return ResponseEntity.ok(signatureService.generateSignedUrl(key, "PUT", 10));
     }
 }
 

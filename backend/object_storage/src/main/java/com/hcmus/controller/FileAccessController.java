@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
 
 @RestController
 public class FileAccessController {
@@ -44,9 +45,13 @@ public class FileAccessController {
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
+        String contentType = Files.probeContentType(file.toPath()); // tự đoán loại MIME
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.valueOf(contentType))
                 .contentLength(file.length())
                 .body(resource);
     }

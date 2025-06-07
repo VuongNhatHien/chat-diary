@@ -31,7 +31,7 @@ public class ImageController {
     @GetMapping("/get")
     public ResponseEntity<?> download(@RequestParam("key") String key) throws Exception {
         String signedUrl = storageService.getSignedGetUrl(key);
-        return restTemplate.getForEntity(signedUrl, String.class);
+        return ResponseEntity.ok(signedUrl);
     }
 
     @PutMapping("/upload")
