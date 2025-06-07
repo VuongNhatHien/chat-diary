@@ -2,5 +2,10 @@ server:
   port: 8081
 
 spring:
+  config:
+    import:
+      - classpath:signature.yaml
+      - classpath:presigned-url.yaml
+      - classpath:domain.yaml
   application:
     name: object-storage
