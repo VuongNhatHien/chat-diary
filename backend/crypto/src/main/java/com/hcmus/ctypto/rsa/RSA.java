@@ -4,6 +4,7 @@ import com.hcmus.hashing.sha256.SHA256;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -29,9 +30,9 @@ public class RSA {
         return sign(data, privateKey);
     }
 
-    public static byte[] sign(String data, PrivateKey key) {
+    public static byte[] sign(String data, PrivateKey key) throws Exception {
         if (!(key instanceof RSAPrivateKey rsaKey)) {
-            throw new IllegalArgumentException("Key must be RSAPrivateKey");
+            throw new InvalidKeyException("Key must be RSAPublicKey");
         }
 
         BigInteger d = rsaKey.getPrivateExponent();
@@ -70,9 +71,9 @@ public class RSA {
         verifySignature(data, signature, publicKey);
     }
 
-    public static void verifySignature(String data, byte[] signature, PublicKey key) {
+    public static void verifySignature(String data, byte[] signature, PublicKey key) throws Exception {
         if (!(key instanceof RSAPublicKey rsaKey)) {
-            throw new IllegalArgumentException("Key must be RSAPublicKey");
+            throw new InvalidKeyException("Key must be RSAPublicKey");
         }
 
         BigInteger e = rsaKey.getPublicExponent();

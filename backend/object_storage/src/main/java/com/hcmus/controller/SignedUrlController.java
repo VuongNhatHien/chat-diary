@@ -24,7 +24,7 @@ public class SignedUrlController {
     public ResponseEntity<String> getSignedDownloadUrl(
         @RequestParam String bucket,
         @RequestParam String key
-    ) throws Exception {
+    ) {
         ObjectStorageProperties properties = fromParams(bucket);
         return ResponseEntity.ok(signatureService.generateSignedUrl(properties, key, "GET", expiration));
     }
