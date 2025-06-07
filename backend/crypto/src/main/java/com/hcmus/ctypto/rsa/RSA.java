@@ -4,11 +4,15 @@ import com.hcmus.hashing.sha256.SHA256;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
+import java.util.Base64;
 
 public class RSA {
     private static final byte[] SHA256_DER_PREFIX = new byte[] {
@@ -19,6 +23,11 @@ public class RSA {
             0x05, 0x00,
             0x04, 0x20
     };
+
+    public static byte[] sign(String data, String keyPem) throws Exception {
+        PrivateKey privateKey = getPrivateKeyFromString(keyPem);
+        return sign(data, privateKey);
+    }
 
     public static byte[] sign(String data, PrivateKey key) {
         if (!(key instanceof RSAPrivateKey rsaKey)) {
@@ -54,6 +63,11 @@ public class RSA {
         byte[] result = new byte[k];
         System.arraycopy(sig, 0, result, k - sig.length, sig.length);
         return result;
+    }
+
+    public static void verifySignature(String data, byte[] signature, String keyPem) throws Exception {
+        PublicKey publicKey = getPublicKeyFromString(keyPem);
+        verifySignature(data, signature, publicKey);
     }
 
     public static void verifySignature(String data, byte[] signature, PublicKey key) {
@@ -103,5 +117,27 @@ public class RSA {
         if (!Arrays.equals(hashFromSig, expectedHash)) {
             throw new SecurityException("Invalid hash in signature");
         }
+    }
+
+    private static PrivateKey getPrivateKeyFromString(String keyPem) throws Exception {
+        String privateKeyPEM = keyPem
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePrivate(keySpec);
+    }
+
+    private static PublicKey getPublicKeyFromString(String keyPem) throws Exception {
+        String publicKeyPEM = keyPem
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] encoded = Base64.getDecoder().decode(publicKeyPEM);
+        java.security.spec.X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePublic(keySpec);
     }
 }

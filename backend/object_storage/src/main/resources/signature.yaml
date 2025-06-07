@@ -1,0 +1,3 @@
+signature:
+  rsa-private-key-path: classpath:certs/private.pem
+  rsa-public-key-path: classpath:certs/public.pem

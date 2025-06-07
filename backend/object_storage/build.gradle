@@ -1,3 +1,9 @@
 dependencies {
-
+    implementation(project(":crypto")) {
+        exclude group: "org.springframework.boot", module: "spring-boot-starter-security"
+        exclude group: "org.springframework.security", module: "spring-security-oauth2-jose"
+        exclude group: "org.springframework.security", module: "spring-security-core"
+        exclude group: "org.springframework.security", module: "spring-security-config"
+        exclude group: "org.springframework.security", module: "spring-security-web"
+    }
 }

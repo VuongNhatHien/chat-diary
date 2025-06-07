@@ -3,8 +3,9 @@ server:
 
 spring:
   config:
-    host: localhost
     import:
-      - classpath:aws.yaml
+      - classpath:signature.yaml
+      - classpath:presigned-url.yaml
+      - classpath:domain.yaml
   application:
     name: object-storage

@@ -10,12 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 
+@RequestMapping("/pre-signed-url")
 @RestController
 public class FileAccessController {
     private final StorageService storageService;
@@ -45,7 +47,7 @@ public class FileAccessController {
 
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
-        String contentType = Files.probeContentType(file.toPath()); // tự đoán loại MIME
+        String contentType = Files.probeContentType(file.toPath());
         if (contentType == null) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }

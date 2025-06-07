@@ -1,6 +1,0 @@
-aws:
-  access-key: TESTACCESSKEY123456
-  secret-key: wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY
-  region: us-west-2
-  service: s3
-  bucket: avatar
