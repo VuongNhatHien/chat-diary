@@ -63,7 +63,6 @@ public class SignatureService {
     }
 
     public void verifySignature(HttpServletRequest request, String method, String key) {
-
         String queryString = request.getQueryString();
         if (queryString == null) throw new BadRequestException("Query is not provided");
 
