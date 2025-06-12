@@ -27,7 +27,13 @@ export default function RouteErrorBoundary() {
 			status='500'
 			title='500'
 			subTitle='Đã có lỗi xảy ra'
-			extra={<Button type='primary'>Back Home</Button>}
+			extra={
+				<Button
+					type='primary'
+					onClick={() => navigate('/')}>
+					Về trang chủ
+				</Button>
+			}
 		/>
 	);
 }

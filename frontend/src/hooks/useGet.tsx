@@ -21,10 +21,11 @@ export default function useGet<TResponse = unknown>(
 
 	const result = useQuery<ApiResponse<TResponse>, ApiErrorResponse>({
 		queryKey: [url],
-		queryFn: () => {
-			return api.get(url);
+		queryFn: async () => {
+			const response = await api.get<ApiResponse<TResponse>>(url);
+			return response.data;
 		},
-    retry: false,
+		retry: false,
 		...queryConfig,
 	});
 

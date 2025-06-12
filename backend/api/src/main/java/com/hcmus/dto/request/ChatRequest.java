@@ -13,7 +13,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ChatRequest {
 
-    private int roomId;
+    @JsonIgnore
+    private String roomId;
     @NotBlank
     private String text;
     @JsonIgnore

@@ -28,10 +28,10 @@ export default function Login() {
 			<div
 				className='flex flex-col gap-3 text-center'
 				style={{ width: 300 }}>
-				<Typography.Title level={2}>
+				<Typography.Text className='!text-4xl font-bold'>
 					Đăng nhập vào
 					<br /> Chat Diary
-				</Typography.Title>
+				</Typography.Text>
 				<ProForm
 					onKeyDown={(e) => {
 						if (e.key === 'Enter') {
@@ -73,20 +73,20 @@ export default function Login() {
 							window.location.replace(
 								`https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${
 									window.location.origin
-								}/oauth/google/callback&response_type=code&client_id=${
+								}/auth/oauth/google/callback&response_type=code&client_id=${
 									import.meta.env.VITE_GOOGLE_CLIENT_ID
 								}&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid&access_type=offline&prompt=select_account`
 							)
 						}>
 						<div className='flex h-full items-center gap-3'>
 							<GoogleOutlined className='text-xl' />
-							<Typography.Text>Đăng nhập bằng Google</Typography.Text>
+							<div>Đăng nhập bằng Google</div>
 						</div>
 					</Button>
 					<Button disabled>
 						<div className='flex h-full items-center gap-3'>
 							<GithubOutlined className='text-xl' />
-							<Typography.Text>Đăng nhập bằng Github</Typography.Text>
+							<div>Đăng nhập bằng Github</div>
 						</div>
 					</Button>
 				</div>

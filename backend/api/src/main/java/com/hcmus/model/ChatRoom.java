@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -17,9 +18,12 @@ import java.time.Instant;
 public class ChatRoom {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Builder.Default
+    private String id = UUID.randomUUID().toString();
     private String name;
+    private String userId;
     @Builder.Default
     private Instant createdAt = Instant.now();
+    @Builder.Default
+    private Boolean named = false;
 }

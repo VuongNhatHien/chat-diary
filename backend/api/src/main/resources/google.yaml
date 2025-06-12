@@ -2,4 +2,4 @@ oauth:
   google:
     clientId: ${GOOGLE_CLIENT_ID}
     clientSecret: ${GOOGLE_CLIENT_SECRET}
-    redirectUri: http://localhost:5173/oauth/google/callback
+    redirectUri: http://localhost:5173/auth/oauth/google/callback

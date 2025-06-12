@@ -17,7 +17,7 @@ import lombok.*;
 public class ChatMessage {
 
     String userId;
-    Integer roomId;
+    String roomId;
     String text;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,20 +1,24 @@
 import { Button, Image, Typography } from 'antd';
+import { useNavigate } from 'react-router';
 import { useUpdate } from '../../hooks/useUpdate';
 
 export default function Header() {
+	const navigate = useNavigate();
 	const { mutateAsync } = useUpdate('/auth/logout', { method: 'put' });
 
 	return (
-		<div className='flex h-20 shadow-md items-center px-8 justify-between'>
-			<div className='flex items-center gap-4 cursor-pointer'>
+		<div className='flex h-20 items-center px-6 justify-between border-b-1 border-gray'>
+			<div
+				className='flex items-center gap-4 cursor-pointer'
+				onClick={() => navigate('/')}>
 				<Image
 					src='https://minecraft.wiki/images/Written_Book_JE2_BE2.gif?c6510'
 					height={35}
 					preview={false}
 				/>
-				<Typography.Text strong>
-					<div className='text-xl'>Chat Diary</div>
-				</Typography.Text>
+				<div className='font-bold'>
+					<Typography.Text className='!text-2xl'>Chat Diary</Typography.Text>
+				</div>
 			</div>
 			<Button
 				type='text'
@@ -22,7 +26,7 @@ export default function Header() {
 					await mutateAsync({});
 					window.location.reload();
 				}}>
-				<Typography.Text>Đăng xuất</Typography.Text>
+				<div>Đăng xuất</div>
 			</Button>
 		</div>
 	);

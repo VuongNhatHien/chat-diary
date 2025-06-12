@@ -19,9 +19,7 @@ export default function Authenticated() {
 	return (
 		<div>
 			<Header />
-			<div
-				style={{ height: 'calc(100vh - 70px)' }}
-				className='px-8 pt-5'>
+			<div style={{ height: 'calc(100vh - 70px)' }}>
 				<Outlet />
 			</div>
 		</div>
