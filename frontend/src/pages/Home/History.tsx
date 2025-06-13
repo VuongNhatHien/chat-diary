@@ -4,7 +4,7 @@ import { useUpdate } from '@/hooks/useUpdate';
 import { ApiResponse } from '@/types/ApiResponse';
 import { ChatRoom } from '@/types/Chat';
 import { BookOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons';
-import { Button, Modal } from 'antd';
+import { Button, Empty, Modal } from 'antd';
 import { formatDate } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import _ from 'lodash';
@@ -16,6 +16,12 @@ export default function History() {
 	const navigate = useNavigate();
 	const { data: chatRoomsRes, isPending } =
 		useGet<ChatRoom[]>(`/me/chat-rooms`);
+	const { mutateAsync: createChatRoom } = useUpdate<object, ChatRoom>(
+		'/chat-rooms',
+		{
+			invalidateKeys: ['/me/chat-rooms'],
+		}
+	);
 
 	const [modalOpen, setModalOpen] = useState(false);
 
@@ -52,8 +58,17 @@ export default function History() {
 
 	return (
 		<div className='px-20 pt-5'>
-			<div className='text-2xl mb-10 font-medium'>
-				Lịch sử trò chuyện của bạn
+			<div className='flex justify-between'>
+				<div className='text-2xl mb-10 font-medium'>Lịch sử trò chuyện</div>
+				<Button
+					icon={<PlusOutlined />}
+					type='primary'
+					onClick={async () => {
+						const chatRoom = await createChatRoom({});
+						navigate(`/conversation/${chatRoom.id}`);
+					}}>
+					Bắt đầu trò chuyện
+				</Button>
 			</div>
 			{(() => {
 				if (isPending) return null;
@@ -83,45 +98,49 @@ export default function History() {
 
 				return (
 					<div className='flex flex-col w-full gap-8'>
-						{chatRoomGroups.map((chatRoomGroup) => {
-							return (
-								<div
-									key={chatRoomGroup.date}
-									className='flex flex-col gap-4'>
-									<div className='flex gap-5 items-center'>
-										<div className='text-xl font-medium'>
-											{chatRoomGroup.date}
+						{chatRoomGroups.length === 0 ? (
+							<Empty description='Bạn chưa có cuộc trò chuyện nào' />
+						) : (
+							chatRoomGroups.map((chatRoomGroup) => {
+								return (
+									<div
+										key={chatRoomGroup.date}
+										className='flex flex-col gap-4'>
+										<div className='flex gap-5 items-center'>
+											<div className='text-xl font-medium'>
+												{chatRoomGroup.date}
+											</div>
+											<Button
+												icon={<BookOutlined />}
+												type='primary'
+												onClick={() =>
+													onOpenModal(
+														chatRoomGroup.rooms[0].createdAt.split('T')[0]
+													)
+												}>
+												Xem nhật ký
+											</Button>
 										</div>
-										<Button
-											icon={<BookOutlined />}
-											type='primary'
-											onClick={() =>
-												onOpenModal(
-													chatRoomGroup.rooms[0].createdAt.split('T')[0]
-												)
-											}>
-											Xem nhật ký
-										</Button>
-									</div>
-									<div className='flex flex-col gap-2'>
-										{chatRoomGroup.rooms.map((chatRoom) => {
-											return (
-												<div
-													key={chatRoom.id}
-													className='border-[0.5px] border-gray-300 rounded-2xl p-5 hover:bg-white hover:shadow-xs cursor-pointer'
-													onClick={() =>
-														navigate(`/conversation/${chatRoom.id}`)
-													}>
-													<div className='text-xl truncate'>
-														{chatRoom.name}
+										<div className='flex flex-col gap-2'>
+											{chatRoomGroup.rooms.map((chatRoom) => {
+												return (
+													<div
+														key={chatRoom.id}
+														className='border-[0.5px] border-gray-300 rounded-2xl p-5 hover:bg-white hover:shadow-xs cursor-pointer'
+														onClick={() =>
+															navigate(`/conversation/${chatRoom.id}`)
+														}>
+														<div className='text-xl truncate'>
+															{chatRoom.name}
+														</div>
 													</div>
-												</div>
-											);
-										})}
+												);
+											})}
+										</div>
 									</div>
-								</div>
-							);
-						})}
+								);
+							})
+						)}
 					</div>
 				);
 			})()}

@@ -16,7 +16,7 @@ export default function Header() {
 					height={35}
 					preview={false}
 				/>
-				<div className='font-bold'>
+				<div className='font-medium'>
 					<Typography.Text className='!text-2xl'>Chat Diary</Typography.Text>
 				</div>
 			</div>

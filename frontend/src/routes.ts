@@ -3,6 +3,7 @@ import App from './App';
 import Auth from './pages/Auth';
 import Login from './pages/Auth/Login';
 import GoogleOAuthCallback from './pages/Auth/OAuthCallback/GoogleOAuthCallback';
+import Register from './pages/Auth/Register';
 import Authenticated from './pages/Authenticated';
 import Home from './pages/Home';
 import Conversation from './pages/Home/Conversation';
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
 					{
 						path: 'login',
 						Component: Login,
+					},
+					{
+						path: 'register',
+						Component: Register,
 					},
 					{
 						path: 'oauth/google/callback',
