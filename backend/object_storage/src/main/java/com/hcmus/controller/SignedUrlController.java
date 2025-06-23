@@ -1,10 +1,8 @@
 package com.hcmus.controller;
 
-import com.hcmus.dto.response.ApiResponse;
 import com.hcmus.property.ObjectStorageProperties;
 import com.hcmus.service.SignatureService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,21 +20,21 @@ public class SignedUrlController {
     }
 
     @GetMapping("/get-url")
-    public ApiResponse<String> getSignedDownloadUrl(
+    public String getSignedDownloadUrl(
         @RequestParam String bucket,
         @RequestParam String key
     ) {
         ObjectStorageProperties properties = fromParams(bucket);
-        return ApiResponse.ok(signatureService.generateSignedUrl(properties, key, "GET", expiration));
+        return signatureService.generateSignedUrl(properties, key, "GET", expiration);
     }
 
     @GetMapping("/put-url")
-    public ApiResponse<String>  getSignedUploadUrl(
+    public String  getSignedUploadUrl(
         @RequestParam String bucket,
         @RequestParam String key
     ) throws Exception {
         ObjectStorageProperties properties = fromParams(bucket);
-        return ApiResponse.ok(signatureService.generateSignedUrl(properties, key, "PUT", expiration));
+        return signatureService.generateSignedUrl(properties, key, "PUT", expiration);
     }
 
     private ObjectStorageProperties fromParams(String bucket) {
