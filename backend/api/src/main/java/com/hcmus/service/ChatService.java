@@ -5,8 +5,8 @@ import com.hcmus.dto.request.ChatRequest;
 import com.hcmus.dto.request.OpenAIChatRequest;
 import com.hcmus.dto.request.OpenAIChatRole;
 import com.hcmus.dto.request.OpenAIMessage;
-import com.hcmus.dto.response.ChatResponse;
 import com.hcmus.dto.response.OpenAIResponse;
+import com.hcmus.exception.NotFoundException;
 import com.hcmus.model.ChatMessage;
 import com.hcmus.model.ChatRoom;
 import com.hcmus.model.ChatSummary;
@@ -38,11 +38,14 @@ public class ChatService {
     private final ChatSummaryRepository chatSummaryRepository;
 
     @Transactional
-    public ChatRoom createChatRoom() {
-        return chatRoomRepository.save(ChatRoom.builder().name("New conversation").build());
+    public ChatRoom createChatRoom(String userId) {
+        return chatRoomRepository.save(ChatRoom.builder()
+                .name("Chưa có tiêu đề")
+                .userId(userId)
+                .build());
     }
 
-    private List<OpenAIMessage> findOpenAIMessagesByRoomId(int roomId) {
+    private List<OpenAIMessage> createOpenAIConversationOfRoom(String roomId) {
         List<ChatMessage> chatMessages = chatMessageRepository.findByRoomId(roomId);
         return chatMessages.stream().map(chatMessage ->
                 OpenAIMessage.builder()
@@ -54,32 +57,46 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatResponse createChatMessage(ChatRequest chatRequest) {
-        chatMessageRepository.save(ChatMessage.builder()
+    public ChatMessage createChatMessage(ChatRequest chatRequest) {
+        var chatMessage = chatMessageRepository.save(ChatMessage.builder()
                 .userId(chatRequest.getUserId())
                 .roomId(chatRequest.getRoomId())
                 .text(chatRequest.getText())
                 .build());
 
-        List<OpenAIMessage> openAIMessages = findOpenAIMessagesByRoomId(chatRequest.getRoomId());
+        var chatRoom = chatRoomRepository.findById(chatRequest.getRoomId()).orElseThrow(NotFoundException::new);
+
+        if (!chatRoom.getNamed()) {
+            chatRoom.setName(chatRequest.getText());
+            chatRoom.setNamed(true);
+        }
+
+        chatMessageRepository.save(chatMessage);
+        chatRoomRepository.save(chatRoom);
+
+        return chatMessage;
+    }
+
+    @Transactional
+    public ChatMessage createChatbotResponseOfRoom(String roomId) {
+        List<OpenAIMessage> openAIMessages = createOpenAIConversationOfRoom(roomId);
 
         OpenAIResponse openAIResponse = openAIService.chatWithContext(openAIMessages);
 
         ChatMessage openAIMessage = ChatMessage.builder()
                 .userId(GeneralConstant.CHATBOT_USER_ID)
-                .roomId(chatRequest.getRoomId())
+                .roomId(roomId)
                 .text(openAIResponse.getText())
                 .build();
-        chatMessageRepository.save(openAIMessage);
 
-        return ChatResponse.builder().text(openAIResponse.getText()).build();
+        return chatMessageRepository.save(openAIMessage);
     }
 
-    private List<ChatRoom> findChatRoomsOfDate(LocalDate date) {
+    private List<ChatRoom> findChatRoomsOfUserByDate(String userId, LocalDate date) {
         Instant startOfDay = date.atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant endOfDay = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-        return chatRoomRepository.findAllByCreatedAtBetween(startOfDay, endOfDay);
+        return chatRoomRepository.findByUserIdAndCreatedAtBetweenOrderByCreatedAt(userId, startOfDay, endOfDay);
     }
 
     private String buildTranscriptFromChatMessages(List<ChatMessage> chatMessages) {
@@ -93,12 +110,10 @@ public class ChatService {
             stringBuilder.append(message.getText()).append("\n");
         }
 
-        log.info("::buildTranscriptFromChatMessages::{}", stringBuilder);
-
         return stringBuilder.toString();
     }
 
-    private String buildTranscriptFromChatMessagesOfRooms(List<Integer> roomIds) {
+    private String buildTranscriptFromChatMessagesOfRooms(List<String> roomIds) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < roomIds.size(); i++) {
             stringBuilder.append(String.format("Cuộc trò chuyện thứ %d:\n", i + 1));
@@ -109,7 +124,7 @@ public class ChatService {
         return stringBuilder.toString();
     }
 
-    private String summarizeChatMessagesOfRooms(List<Integer> roomIds) {
+    private String summarizeChatMessagesOfRooms(List<String> roomIds) {
         String promptMessage = SUMMARY_PROMPT + buildTranscriptFromChatMessagesOfRooms(roomIds);
         OpenAIResponse response = openAIService.chatWithSingleMessage(
                 OpenAIChatRequest.builder().message(promptMessage).build());
@@ -117,16 +132,29 @@ public class ChatService {
     }
 
     @Transactional
-    public String summarizeChatMessagesByDate(LocalDate date, String userId) {
-        List<ChatRoom> chatRooms = findChatRoomsOfDate(date);
-        List<Integer> chatRoomIds = chatRooms.stream().map(ChatRoom::getId).toList();
+    public String summarizeChatMessagesOfUserByDate(String userId, LocalDate date) {
+        List<ChatRoom> chatRooms = findChatRoomsOfUserByDate(userId, date);
+        List<String> chatRoomIds = chatRooms.stream().map(ChatRoom::getId).toList();
 
         String summarized = summarizeChatMessagesOfRooms(chatRoomIds);
-
+        List<ChatSummary> chatSummaries = chatSummaryRepository.findByUserIdAndDate(userId, date);
+        Integer chatSummaryId = chatSummaries.isEmpty() ? null : chatSummaries.get(0).getId();
         chatSummaryRepository.save(
-                ChatSummary.builder().date(date).text(summarized).userId(userId).build());
+                ChatSummary.builder().id(chatSummaryId).date(date).text(summarized).userId(userId).build());
 
         return summarized;
     }
 
+    public String getSummarized(String userId, LocalDate date) {
+        List<ChatSummary> chatSummaries = chatSummaryRepository.findByUserIdAndDate(userId, date);
+        return chatSummaries.isEmpty() ? null : chatSummaries.getFirst().getText();
+    }
+
+    public List<ChatRoom> getChatRoomsOfUser(String userId) {
+        return chatRoomRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+
+    public List<ChatMessage> findChatMessagesOfRoom(String roomId) {
+        return chatMessageRepository.findByRoomId(roomId);
+    }
 }

@@ -1,23 +1,33 @@
 import { useUpdate } from '@/hooks/useUpdate';
-import { GoogleOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { ProForm, ProFormText } from '@ant-design/pro-components';
-import { Button, Divider, Typography } from 'antd';
+import { Button, Typography } from 'antd';
+import useApp from 'antd/es/app/useApp';
 import { useForm } from 'antd/es/form/Form';
 import { useNavigate } from 'react-router';
 
 interface FormType {
 	email: string;
 	password: string;
+	passwordConfirm: string;
+	firstName: string;
+	lastName: string;
 }
 
-export default function Login() {
+export default function Register() {
 	const navigate = useNavigate();
 	const [form] = useForm<FormType>();
-	const { mutateAsync } = useUpdate<FormType>('/auth/login');
+	const { mutateAsync } = useUpdate<FormType>('/auth/register');
+	const { message } = useApp();
 
 	const onFinish = async (values: FormType) => {
+		if (values.password !== values.passwordConfirm) {
+			message.error('Mật khẩu nhập lại không trùng khớp');
+			return;
+		}
+
 		await mutateAsync(values);
-		window.location.reload();
+		message.info('Đăng ký thành công');
+		navigate('/auth/login');
 	};
 
 	return (
@@ -26,8 +36,7 @@ export default function Login() {
 				className='flex flex-col gap-3 text-center'
 				style={{ width: 300 }}>
 				<Typography.Text className='!text-4xl font-bold'>
-					Đăng nhập vào
-					<br /> Chat Diary
+					Đăng ký tài khoản mới
 				</Typography.Text>
 				<ProForm
 					onKeyDown={(e) => {
@@ -45,15 +54,14 @@ export default function Login() {
 										className='w-full'
 										type='primary'
 										onClick={() => form.submit()}>
-										Đăng nhập
+										Đăng ký
 									</Button>
-									<div className='flex justify-center gap-3 items-center'>
-										<div>Chưa có tài khoản?</div>
+									<div className='flex justify-center'>
 										<Button
-											onClick={() => navigate('/auth/register')}
+											onClick={() => navigate('/auth/login')}
 											type='link'
 											style={{ padding: 0 }}>
-											Đăng ký
+											Quay về đăng nhập
 										</Button>
 									</div>
 								</div>,
@@ -64,34 +72,30 @@ export default function Login() {
 						label='Email'
 						name={'email'}
 						placeholder={'Email'}
-						fieldProps={{ prefix: <UserOutlined /> }}
 					/>
 					<ProFormText
 						label='Mật khẩu'
 						name={'password'}
 						placeholder={'Mật khẩu'}
-						fieldProps={{ type: 'password', prefix: <LockOutlined /> }}
+						fieldProps={{ type: 'password' }}
+					/>
+					<ProFormText
+						label='Xác nhận mật khẩu'
+						name={'passwordConfirm'}
+						placeholder={'Nhập lại mật khẩu'}
+						fieldProps={{ type: 'password' }}
+					/>
+					<ProFormText
+						label='Họ'
+						name={'lastName'}
+						placeholder={'Nhập họ của bạn'}
+					/>
+					<ProFormText
+						label='Tên'
+						name={'firstName'}
+						placeholder={'Nhập tên của bạn'}
 					/>
 				</ProForm>
-
-				<Divider plain>hoặc</Divider>
-				<div className='flex flex-col gap-3'>
-					<Button
-						onClick={() =>
-							window.location.replace(
-								`https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=${
-									window.location.origin
-								}/auth/oauth/google/callback&response_type=code&client_id=${
-									import.meta.env.VITE_GOOGLE_CLIENT_ID
-								}&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid&access_type=offline&prompt=select_account`
-							)
-						}>
-						<div className='flex h-full items-center gap-3'>
-							<GoogleOutlined className='text-xl' />
-							<div>Đăng nhập bằng Google</div>
-						</div>
-					</Button>
-				</div>
 			</div>
 		</div>
 	);

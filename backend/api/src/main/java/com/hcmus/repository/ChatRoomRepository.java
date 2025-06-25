@@ -6,7 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.Instant;
 import java.util.List;
 
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
-    List<ChatRoom> findAllByCreatedAtBetween(Instant startDate, Instant endDate);
+    List<ChatRoom> findAllByUserIdAndCreatedAtBetween(String userId, Instant startDate, Instant endDate);
+
+    List<ChatRoom> findByUserIdAndCreatedAtBetweenOrderByCreatedAt(String userId, Instant startDate, Instant endDate);
+
+    List<ChatRoom> findByUserIdOrderByCreatedAtDesc(String userId);
 }
