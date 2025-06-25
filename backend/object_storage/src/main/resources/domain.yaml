@@ -1,3 +1,2 @@
 domain:
-  frontend: ${FRONTEND_URL}
   object-storage: ${OBJECT_STORAGE_DOMAIN}

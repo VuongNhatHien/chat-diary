@@ -39,4 +39,6 @@ out/
 .DS_Store
 .env
 .env.*
-data/images/*
+
+### Data storage ###
+data/
