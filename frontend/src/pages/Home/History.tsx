@@ -60,6 +60,7 @@ export default function History() {
 		<div className='px-20 pt-5'>
 			<div className='flex justify-between'>
 				<div className='text-2xl mb-10 font-medium'>Lịch sử trò chuyện</div>
+				
 				<Button
 					icon={<PlusOutlined />}
 					type='primary'
